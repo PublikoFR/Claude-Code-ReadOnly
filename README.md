@@ -1,0 +1,145 @@
+# Claude Code ReadOnly
+
+Protect folders from modifications in Claude Code. Grant read-only access to external directories per project.
+
+## Features
+
+- **Cross-platform**: Works on Linux, macOS, and Windows
+- **No dependencies**: Uses only Node.js (included with Claude Code)
+- **Per-project configuration**: Each project can have its own list of read-only folders
+- **Global folders**: Share read-only folders across all projects
+- **Bash protection**: Blocks dangerous commands (rm, mv, cp, touch, etc.)
+- **Edit/Write protection**: Blocks Claude's Edit and Write tools
+- **Safe commands allowed**: ls, cat, grep, find, head, tail, etc.
+
+## Installation
+
+### One-liner (all platforms)
+```bash
+curl -fsSL https://raw.githubusercontent.com/your-username/claude-code-readonly/main/install.js | node
+```
+
+### From source
+```bash
+git clone https://github.com/your-username/claude-code-readonly.git
+cd claude-code-readonly
+node install.js
+# You can delete the folder after installation
+```
+
+### Manual setup (no scripts)
+
+If you prefer not to run any scripts:
+
+1. **Copy the hook** to `~/.claude/hooks/`:
+   ```bash
+   cp hooks/protect-readonly.js ~/.claude/hooks/
+   ```
+
+2. **Copy the commands** to `~/.claude/commands/`:
+   ```bash
+   cp commands/*.md ~/.claude/commands/
+   ```
+
+3. **Add the hook** to `~/.claude/settings.json` in the `hooks` section:
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [
+         {
+           "matcher": "Bash",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "node ~/.claude/hooks/protect-readonly.js",
+               "timeout": 5
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+4. **Add readonlyFolders** to `~/.claude/settings.json`:
+   ```json
+   {
+     "readonlyFolders": { "projects": {}, "global": [] }
+   }
+   ```
+
+## Requirements
+
+- **Claude Code CLI** (includes Node.js)
+
+No external dependencies required.
+
+## Usage
+
+### Add a read-only folder (project-specific)
+```
+/add-readonly /path/to/folder
+```
+
+### Add a read-only folder (global)
+```
+/add-readonly /path/to/folder --global
+```
+
+### List protected folders
+```
+/list-readonly
+```
+
+### Remove a folder
+```
+/remove-readonly /path/to/folder
+```
+
+## Configuration
+
+Configuration is stored in `~/.claude/settings.json` under the `readonlyFolders` key:
+
+```json
+{
+  "hooks": { ... },
+  "permissions": { ... },
+  "readonlyFolders": {
+    "projects": {
+      "/home/user/project-a": [
+        "/home/user/shared-lib"
+      ],
+      "/home/user/project-b": [
+        "/home/user/another-lib"
+      ]
+    },
+    "global": [
+      "/home/user/always-readonly"
+    ]
+  }
+}
+```
+
+## How it works
+
+1. **PreToolUse Hook**: Intercepts every Bash command before execution
+2. **Project Detection**: Uses current working directory to identify the project
+3. **Path Matching**: Checks if the command targets a protected folder
+4. **Command Classification**: Allows read commands, blocks write commands
+
+### Commands blocked
+- `rm`, `mv`, `cp`, `touch`, `mkdir`, `rmdir`
+- `echo >`, `cat >`, `tee`, `sed -i`
+- `chmod`, `chown`, `truncate`, `dd`
+- `git checkout`, `git reset`, `git clean`, `git rm`
+- Any command with `>` or `>>` redirection
+
+### Commands allowed
+- `ls`, `cat`, `head`, `tail`
+- `grep`, `rg`, `grepai`, `find`
+- `file`, `wc`, `diff`, `stat`, `du`
+- `tree`, `bat`, `less`, `more`
+
+## License
+
+MIT
