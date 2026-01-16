@@ -8,16 +8,19 @@ const SETTINGS_FILE = path.join(os.homedir(), '.claude', 'settings.json');
 const CWD = process.cwd();
 
 // Parse arguments
-let folderPath = null;
+let pathParts = [];
 let isGlobal = false;
 
 for (const arg of args) {
   if (arg === '--global') {
     isGlobal = true;
-  } else if (!folderPath) {
-    folderPath = arg;
+  } else {
+    pathParts.push(arg);
   }
 }
+
+// Join path parts (handles paths with spaces)
+let folderPath = pathParts.join(' ');
 
 if (!folderPath) {
   console.log('Usage: add-readonly <path> [--global]');
