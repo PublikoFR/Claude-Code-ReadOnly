@@ -18,8 +18,11 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/PublikoFR/Claude-Code
 const FILES_TO_INSTALL = {
   'hooks/protect-readonly.js': 'hooks/protect-readonly.js',
   'commands/list-readonly.md': 'commands/list-readonly.md',
+  'commands/list-readonly.js': 'commands/list-readonly.js',
   'commands/add-readonly.md': 'commands/add-readonly.md',
+  'commands/add-readonly.js': 'commands/add-readonly.js',
   'commands/remove-readonly.md': 'commands/remove-readonly.md',
+  'commands/remove-readonly.js': 'commands/remove-readonly.js',
 };
 
 // Colors
@@ -222,29 +225,18 @@ function updateSettings() {
 
 // Cleanup old files
 function cleanup() {
+  // Old files from previous versions (for users upgrading)
   const oldFiles = [
-    path.join(CLAUDE_DIR, 'hooks', 'protect-readonly.sh'),
-    path.join(CLAUDE_DIR, 'hooks', 'protect-readonly.ps1'),
-    path.join(CLAUDE_DIR, 'hooks', 'protect-boilerplate.sh'),
-    path.join(CLAUDE_DIR, 'protected-folders.txt'),
-    path.join(CLAUDE_DIR, 'readonly-config.json'),
-    path.join(CLAUDE_DIR, 'commands', 'add-read-only-folder.md'),
-    path.join(CLAUDE_DIR, 'commands', 'remove-read-only-folder.md'),
-    path.join(CLAUDE_DIR, 'commands', 'list-read-only-folders.md'),
+    path.join(CLAUDE_DIR, 'readonly-config.json'), // Migrated to settings.json
   ];
 
-  let cleaned = false;
   for (const file of oldFiles) {
     if (fs.existsSync(file)) {
       try {
         fs.unlinkSync(file);
-        log.info(`Removed: ${path.basename(file)}`);
-        cleaned = true;
+        log.info(`Removed old: ${path.basename(file)}`);
       } catch {}
     }
-  }
-  if (!cleaned) {
-    log.info('No old files to clean');
   }
 }
 

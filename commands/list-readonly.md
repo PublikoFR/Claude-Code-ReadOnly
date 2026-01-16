@@ -1,14 +1,8 @@
 ---
 description: List folders configured as read-only
+allowed-tools: Bash(node:*)
 ---
 
-Display read-only folders for the current project.
+Run this command and show the output to the user:
 
-Instructions:
-1. Read ~/.claude/settings.json
-2. Look for the "readonlyFolders" key
-3. Identify current project (CWD)
-4. Display:
-   - Folders specific to this project (from readonlyFolders.projects[CWD])
-   - Global folders (from readonlyFolders.global)
-5. Format as table with path and type (project/global)
+!`node ~/.claude/commands/list-readonly.js`
