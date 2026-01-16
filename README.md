@@ -1,6 +1,14 @@
 # Claude Code ReadOnly
 
-Protect folders from modifications in Claude Code. Grant read-only access to external directories per project.
+A plugin for [Claude Code](https://claude.ai/code) that protects external folders from modifications while allowing read access.
+
+**Why?** When working on a project, you may need Claude to reference code from other folders (libraries, boilerplates, other projects) without accidentally modifying them. This plugin adds read-only protection to any folder you specify. You can manage restrictions by project, or globally.
+
+**How it works:**
+- Installs a **PreToolUse hook** that intercepts Bash commands before execution
+- Adds **slash commands** (`/add-readonly`, `/remove-readonly`, `/list-readonly`) to manage protected folders
+- Stores configuration in `~/.claude/settings.json` alongside your other Claude Code settings
+- Supports **per-project** folders (only accessible from a specific project) and **global** folders (accessible from all projects)
 
 ## Features
 
@@ -16,12 +24,12 @@ Protect folders from modifications in Claude Code. Grant read-only access to ext
 
 ### One-liner (all platforms)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-username/claude-code-readonly/main/install.js | node
+curl -fsSL https://raw.githubusercontent.com/PublikoFR/Claude-Code-ReadOnly/main/install.js | node
 ```
 
 ### From source
 ```bash
-git clone https://github.com/your-username/claude-code-readonly.git
+git clone https://github.com/PublikoFR/Claude-Code-ReadOnly.git
 cd claude-code-readonly
 node install.js
 # You can delete the folder after installation
