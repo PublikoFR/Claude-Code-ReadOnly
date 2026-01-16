@@ -3,8 +3,9 @@
  * Claude Code ReadOnly - Cross-platform installer
  *
  * Usage:
- *   Local:  node install.js
- *   Remote: curl -fsSL https://raw.githubusercontent.com/PublikoFR/Claude-Code-ReadOnly/main/install.js | node
+ *   Install:   node install.js
+ *   Uninstall: node install.js --uninstall
+ *   Remote:    curl -fsSL https://raw.githubusercontent.com/PublikoFR/Claude-Code-ReadOnly/main/install.js | node
  */
 
 const fs = require('fs');
@@ -240,6 +241,73 @@ function cleanup() {
   }
 }
 
+// Uninstall function
+function uninstall() {
+  console.log(`
+${c.cyan}╔══════════════════════════════════════╗
+║  Claude Code ReadOnly - Uninstaller  ║
+╚══════════════════════════════════════╝${c.reset}
+`);
+
+  // 1. Remove installed files
+  log.info('Removing files...');
+  const filesToRemove = Object.values(FILES_TO_INSTALL).map(f => path.join(CLAUDE_DIR, f));
+
+  for (const file of filesToRemove) {
+    if (fs.existsSync(file)) {
+      try {
+        fs.unlinkSync(file);
+        log.success(`Removed: ${path.basename(file)}`);
+      } catch (err) {
+        log.error(`Failed to remove: ${path.basename(file)}`);
+      }
+    }
+  }
+
+  // 2. Remove hook from settings.json
+  console.log('');
+  log.info('Removing hook from settings.json...');
+  const settingsPath = path.join(CLAUDE_DIR, 'settings.json');
+
+  if (fs.existsSync(settingsPath)) {
+    try {
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+
+      // Remove PreToolUse hook for protect-readonly
+      if (settings.hooks?.PreToolUse) {
+        settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter(
+          hook => !JSON.stringify(hook).includes('protect-readonly')
+        );
+        if (settings.hooks.PreToolUse.length === 0) {
+          delete settings.hooks.PreToolUse;
+        }
+      }
+
+      // Remove readonlyFolders config
+      if (settings.readonlyFolders) {
+        delete settings.readonlyFolders;
+        log.success('Removed: readonlyFolders config');
+      }
+
+      // Note: permissions.additionalDirectories is managed by Claude Code itself
+      // We don't remove it as users may have granted access for other reasons
+
+      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+      log.success('Updated: settings.json');
+    } catch (err) {
+      log.error(`Failed to update settings.json: ${err.message}`);
+    }
+  }
+
+  console.log(`
+${c.green}╔══════════════════════════════════════╗
+║      Uninstallation complete!        ║
+╚══════════════════════════════════════╝${c.reset}
+
+${c.dim}Restart Claude Code to apply changes.${c.reset}
+`);
+}
+
 // Main
 async function install() {
   const isLocal = isLocalInstall();
@@ -294,7 +362,14 @@ ${c.dim}Restart Claude Code to apply changes.${c.reset}
 `);
 }
 
-install().catch(err => {
-  log.error(`Installation failed: ${err.message}`);
-  process.exit(1);
-});
+// Parse arguments and run
+const args = process.argv.slice(2);
+
+if (args.includes('--uninstall') || args.includes('-u')) {
+  uninstall();
+} else {
+  install().catch(err => {
+    log.error(`Installation failed: ${err.message}`);
+    process.exit(1);
+  });
+}
