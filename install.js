@@ -4,7 +4,7 @@
  *
  * Usage:
  *   Local:  node install.js
- *   Remote: curl -fsSL https://raw.githubusercontent.com/your-username/claude-code-readonly/main/install.js | node
+ *   Remote: curl -fsSL https://raw.githubusercontent.com/PublikoFR/Claude-Code-ReadOnly/main/install.js | node
  */
 
 const fs = require('fs');
@@ -13,7 +13,7 @@ const os = require('os');
 const https = require('https');
 
 // GitHub raw URLs (update with your repo)
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/your-username/claude-code-readonly/main';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/PublikoFR/Claude-Code-ReadOnly/main';
 
 const FILES_TO_INSTALL = {
   'hooks/protect-readonly.js': 'hooks/protect-readonly.js',
